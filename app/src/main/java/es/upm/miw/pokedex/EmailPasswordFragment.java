@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.Group;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -167,6 +168,13 @@ public class EmailPasswordFragment extends BaseFragment {
         mAuth.signOut();
         updateUI(false);
         Toast.makeText(getContext(), R.string.signed_out, Toast.LENGTH_SHORT).show();
+
+        // Navigate back to LoginMethodFragment
+        LoginMethodFragment loginMethodFragment = new LoginMethodFragment();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, loginMethodFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void sendEmailVerification() {
