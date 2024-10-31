@@ -97,6 +97,13 @@ public class EmailPasswordFragment extends BaseFragment {
                 if (user.isEmailVerified()) {
                     verifyEmailButton.setVisibility(View.GONE);
                     emailVerificationStatus.setText(R.string.email_verified);
+
+                    // Navigate to PokedexFragment
+                    PokedexFragment pokedexFragment = new PokedexFragment();
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container, pokedexFragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
                 } else {
                     verifyEmailButton.setVisibility(View.VISIBLE);
                     emailVerificationStatus.setText(R.string.email_not_verified);
