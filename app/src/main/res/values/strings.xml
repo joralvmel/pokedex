@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">Pokedex</string>
+    <string name="label_emailpassword">Email/Password Authentication</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="create_account">Create Account</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="verify_email">Verify</string>
+    <string name="reload">Reload</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="account_created_success">Account created successfully.</string>
+    <string name="account_creation_error">Error creating account.</string>
+    <string name="email_verification_sent">Email verification sent.</string>
+    <string name="email_verification_failed">Email verification failed.</string>
+    <string name="required">Required.</string>
+    <string name="user_status">User: %1$s</string>
+    <string name="firebase_id">Firebase ID: %1$s</string>
+    <string name="not_authenticated">Not authenticated</string>
+    <string name="emailpassword_title_text">Email and Password</string>
+    <string name="signed_out">Signed Out</string>
+    <string name="email_not_verified">Email has not yet been verified!</string>
+    <string name="email_verified">Email has been verified!</string>
+    <string name="reload_successful">Reload successful</string>
+    <string name="signed_in">Signed In</string>
+    <string name="login_with_email_password">Login with Email/Password</string>
+    <string name="user_email">User Email</string>
+    <string name="pokedex">Pokedex</string>
 </resources>
