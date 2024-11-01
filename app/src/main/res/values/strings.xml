@@ -49,4 +49,17 @@
         <item>Steel</item>
         <item>Fairy</item>
     </string-array>
+
+    <string-array name="pokemon_generations">
+        <item>National</item>
+        <item>Generation 1</item>
+        <item>Generation 2</item>
+        <item>Generation 3</item>
+        <item>Generation 4</item>
+        <item>Generation 5</item>
+        <item>Generation 6</item>
+        <item>Generation 7</item>
+        <item>Generation 8</item>
+        <item>Generation 9</item>
+    </string-array>
 </resources>

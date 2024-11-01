@@ -43,6 +43,9 @@ public class PokemonListFragment extends Fragment {
     private final List<PokemonDetail> filteredPokemonList = new ArrayList<>();
     private final Set<Integer> pokemonIds = new HashSet<>();
     private AppDatabase db;
+    private String currentSearchText = "";
+    private String currentType = "All";
+    private String currentGeneration = "National";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -90,6 +93,24 @@ public class PokemonListFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 filterByType("All");
+            }
+        });
+
+        Spinner generationSpinner = view.findViewById(R.id.generation_spinner);
+        ArrayAdapter<CharSequence> generationAdapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.pokemon_generations, android.R.layout.simple_spinner_item);
+        generationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        generationSpinner.setAdapter(generationAdapter);
+        generationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedGeneration = parent.getItemAtPosition(position).toString();
+                filterByGeneration(selectedGeneration);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                filterByGeneration("National");
             }
         });
 
@@ -280,6 +301,55 @@ public class PokemonListFragment extends Fragment {
                         break;
                     }
                 }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void filterByGeneration(String generation) {
+        filteredPokemonList.clear();
+        int startId = 1, endId = 1025;
+        switch (generation) {
+            case "Generation 1":
+                endId = 151;
+                break;
+            case "Generation 2":
+                startId = 152;
+                endId = 251;
+                break;
+            case "Generation 3":
+                startId = 252;
+                endId = 386;
+                break;
+            case "Generation 4":
+                startId = 387;
+                endId = 493;
+                break;
+            case "Generation 5":
+                startId = 494;
+                endId = 649;
+                break;
+            case "Generation 6":
+                startId = 650;
+                endId = 721;
+                break;
+            case "Generation 7":
+                startId = 722;
+                endId = 809;
+                break;
+            case "Generation 8":
+                startId = 810;
+                endId = 905;
+                break;
+            case "Generation 9":
+                startId = 906;
+                endId = 1025;
+                break;
+        }
+        for (PokemonDetail detail : pokemonList) {
+            if (detail.getId() >= startId && detail.getId() <= endId) {
+                filteredPokemonList.add(detail);
             }
         }
         adapter.notifyDataSetChanged();
