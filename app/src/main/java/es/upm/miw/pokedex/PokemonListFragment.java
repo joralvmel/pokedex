@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -71,6 +74,24 @@ public class PokemonListFragment extends Fragment {
 
         Button reloadButton = view.findViewById(R.id.reload_button);
         reloadButton.setOnClickListener(v -> fetchAllPokemon());
+
+        Spinner typeSpinner = view.findViewById(R.id.type_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.pokemon_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(adapter);
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedType = parent.getItemAtPosition(position).toString();
+                filterByType(selectedType);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                filterByType("All");
+            }
+        });
 
         return view;
     }
@@ -240,6 +261,24 @@ public class PokemonListFragment extends Fragment {
             for (PokemonDetail detail : pokemonList) {
                 if (detail.getName().toLowerCase().contains(text.toLowerCase())) {
                     filteredPokemonList.add(detail);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void filterByType(String type) {
+        filteredPokemonList.clear();
+        if (type.equals("All")) {
+            filteredPokemonList.addAll(pokemonList);
+        } else {
+            for (PokemonDetail detail : pokemonList) {
+                for (PokemonDetail.Type pokemonType : detail.getTypes()) {
+                    if (pokemonType.getTypeInfo().getName().equalsIgnoreCase(type)) {
+                        filteredPokemonList.add(detail);
+                        break;
+                    }
                 }
             }
         }
