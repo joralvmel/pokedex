@@ -5,8 +5,8 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 
 public interface PokeApiService {
-    @GET("pokemon?limit=150")
-    Call<PokemonResponse> getFirst150Pokemon();
+    @GET("pokemon?limit=1025")
+    Call<PokemonResponse> getAllPokemon();
 
     @GET("pokemon/{id}")
     Call<PokemonDetail> getPokemonDetail(@Path("id") int id);

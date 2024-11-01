@@ -55,38 +55,38 @@ public class PokemonListFragment extends Fragment {
     private void loadPokemonFromDatabase() {
         new Thread(() -> {
             List<PokemonEntity> pokemonEntities = db.pokemonDao().getAllPokemon();
-            if (pokemonEntities.isEmpty()) {
-                fetchFirst150Pokemon();
-            } else {
-                pokemonList.clear();
-                for (PokemonEntity entity : pokemonEntities) {
-                    PokemonDetail detail = new PokemonDetail();
-                    detail.setId(entity.getId());
-                    detail.setName(entity.getName());
-                    if (detail.getSprites() == null) {
-                        detail.setSprites(new PokemonDetail.Sprites());
-                    }
-                    detail.getSprites().setFrontDefault(entity.getFrontDefault());
-                    if (detail.getTypes() == null) {
-                        detail.setTypes(new ArrayList<>());
-                    }
-                    // Parse and set types
-                    String[] typesArray = entity.getTypes().split(",");
-                    for (String typeName : typesArray) {
-                        PokemonDetail.Type type = new PokemonDetail.Type();
-                        PokemonDetail.Type.TypeInfo typeInfo = new PokemonDetail.Type.TypeInfo();
-                        typeInfo.setName(typeName);
-                        type.setTypeInfo(typeInfo);
-                        detail.getTypes().add(type);
-                    }
-                    pokemonList.add(detail);
+            pokemonList.clear();
+            for (PokemonEntity entity : pokemonEntities) {
+                PokemonDetail detail = new PokemonDetail();
+                detail.setId(entity.getId());
+                detail.setName(entity.getName());
+                if (detail.getSprites() == null) {
+                    detail.setSprites(new PokemonDetail.Sprites());
                 }
+                detail.getSprites().setFrontDefault(entity.getFrontDefault());
+                if (detail.getTypes() == null) {
+                    detail.setTypes(new ArrayList<>());
+                }
+                // Parse and set types
+                String[] typesArray = entity.getTypes().split(",");
+                for (String typeName : typesArray) {
+                    PokemonDetail.Type type = new PokemonDetail.Type();
+                    PokemonDetail.Type.TypeInfo typeInfo = new PokemonDetail.Type.TypeInfo();
+                    typeInfo.setName(typeName);
+                    type.setTypeInfo(typeInfo);
+                    detail.getTypes().add(type);
+                }
+                pokemonList.add(detail);
             }
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+            }
+            fetchAllPokemon();
         }).start();
     }
 
-    private void fetchFirst150Pokemon() {
-        apiService.getFirst150Pokemon().enqueue(new Callback<PokemonResponse>() {
+    private void fetchAllPokemon() {
+        apiService.getAllPokemon().enqueue(new Callback<PokemonResponse>() {
             @Override
             public void onResponse(@NonNull Call<PokemonResponse> call, @NonNull Response<PokemonResponse> response) {
                 if (response.isSuccessful()) {
