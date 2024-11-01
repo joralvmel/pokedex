@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
@@ -68,6 +69,9 @@ public class PokemonListFragment extends Fragment {
             }
         });
 
+        Button reloadButton = view.findViewById(R.id.reload_button);
+        reloadButton.setOnClickListener(v -> fetchAllPokemon());
+
         return view;
     }
 
@@ -75,38 +79,41 @@ public class PokemonListFragment extends Fragment {
     private void loadPokemonFromDatabase() {
         new Thread(() -> {
             List<PokemonEntity> pokemonEntities = db.pokemonDao().getAllPokemon();
-            pokemonList.clear();
-            for (PokemonEntity entity : pokemonEntities) {
-                PokemonDetail detail = new PokemonDetail();
-                detail.setId(entity.getId());
-                detail.setName(entity.getName());
-                if (detail.getSprites() == null) {
-                    detail.setSprites(new PokemonDetail.Sprites());
+            if (pokemonEntities.isEmpty()) {
+                fetchAllPokemon();
+            } else {
+                pokemonList.clear();
+                for (PokemonEntity entity : pokemonEntities) {
+                    PokemonDetail detail = new PokemonDetail();
+                    detail.setId(entity.getId());
+                    detail.setName(entity.getName());
+                    if (detail.getSprites() == null) {
+                        detail.setSprites(new PokemonDetail.Sprites());
+                    }
+                    detail.getSprites().setFrontDefault(entity.getFrontDefault());
+                    if (detail.getTypes() == null) {
+                        detail.setTypes(new ArrayList<>());
+                    }
+                    // Parse and set types
+                    String[] typesArray = entity.getTypes().split(",");
+                    for (String typeName : typesArray) {
+                        PokemonDetail.Type type = new PokemonDetail.Type();
+                        PokemonDetail.Type.TypeInfo typeInfo = new PokemonDetail.Type.TypeInfo();
+                        typeInfo.setName(typeName);
+                        type.setTypeInfo(typeInfo);
+                        detail.getTypes().add(type);
+                    }
+                    pokemonList.add(detail);
+                    pokemonIds.add(detail.getId());
                 }
-                detail.getSprites().setFrontDefault(entity.getFrontDefault());
-                if (detail.getTypes() == null) {
-                    detail.setTypes(new ArrayList<>());
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        filteredPokemonList.clear();
+                        filteredPokemonList.addAll(pokemonList);
+                        adapter.notifyDataSetChanged();
+                    });
                 }
-                // Parse and set types
-                String[] typesArray = entity.getTypes().split(",");
-                for (String typeName : typesArray) {
-                    PokemonDetail.Type type = new PokemonDetail.Type();
-                    PokemonDetail.Type.TypeInfo typeInfo = new PokemonDetail.Type.TypeInfo();
-                    typeInfo.setName(typeName);
-                    type.setTypeInfo(typeInfo);
-                    detail.getTypes().add(type);
-                }
-                pokemonList.add(detail);
-                pokemonIds.add(detail.getId());
             }
-            if (isAdded()) {
-                requireActivity().runOnUiThread(() -> {
-                    filteredPokemonList.clear();
-                    filteredPokemonList.addAll(pokemonList);
-                    adapter.notifyDataSetChanged();
-                });
-            }
-            fetchAllPokemon();
         }).start();
     }
 
@@ -116,11 +123,14 @@ public class PokemonListFragment extends Fragment {
             public void onResponse(@NonNull Call<PokemonResponse> call, @NonNull Response<PokemonResponse> response) {
                 if (response.isSuccessful()) {
                     List<Pokemon> pokemonList = Objects.requireNonNull(response.body()).getResults();
+                    List<Integer> apiPokemonIds = new ArrayList<>();
                     for (Pokemon pokemon : pokemonList) {
                         String[] urlParts = pokemon.getUrl().split("/");
                         int id = Integer.parseInt(urlParts[urlParts.length - 1]);
+                        apiPokemonIds.add(id);
                         fetchPokemonDetail(id);
                     }
+                    removeMissingPokemon(apiPokemonIds);
                 }
             }
 
@@ -132,21 +142,28 @@ public class PokemonListFragment extends Fragment {
     }
 
     private void fetchPokemonDetail(int id) {
-        if (pokemonIds.contains(id)) {
-            return;
-        }
         apiService.getPokemonDetail(id).enqueue(new Callback<PokemonDetail>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(@NonNull Call<PokemonDetail> call, @NonNull Response<PokemonDetail> response) {
                 if (response.isSuccessful()) {
                     PokemonDetail detail = response.body();
-                    pokemonList.add(detail);
-                    pokemonIds.add(Objects.requireNonNull(detail).getId());
-                    savePokemonToDatabase(detail);
-                    if (pokemonList.size() == 150) {
-                        sortPokemonList();
-                        adapter.notifyDataSetChanged();
+                    if (detail != null) {
+                        if (!pokemonIds.contains(detail.getId()) || isPokemonDifferent(detail)) {
+                            savePokemonToDatabase(detail);
+                            if (!pokemonIds.contains(detail.getId())) {
+                                pokemonList.add(detail);
+                                pokemonIds.add(detail.getId());
+                            } else {
+                                updatePokemonInList(detail);
+                            }
+                            sortPokemonList();
+                            requireActivity().runOnUiThread(() -> {
+                                filteredPokemonList.clear();
+                                filteredPokemonList.addAll(pokemonList);
+                                adapter.notifyDataSetChanged();
+                            });
+                        }
                     }
                 }
             }
@@ -156,6 +173,46 @@ public class PokemonListFragment extends Fragment {
                 // Handle failure
             }
         });
+    }
+
+    private boolean isPokemonDifferent(PokemonDetail detail) {
+        for (PokemonDetail localDetail : pokemonList) {
+            if (localDetail.getId() == detail.getId()) {
+                return !localDetail.equals(detail);
+            }
+        }
+        return true;
+    }
+
+    private void updatePokemonInList(PokemonDetail detail) {
+        for (int i = 0; i < pokemonList.size(); i++) {
+            if (pokemonList.get(i).getId() == detail.getId()) {
+                pokemonList.set(i, detail);
+                break;
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void removeMissingPokemon(List<Integer> apiPokemonIds) {
+        new Thread(() -> {
+            List<PokemonEntity> localPokemon = db.pokemonDao().getAllPokemon();
+            boolean removed = false;
+            for (PokemonEntity entity : localPokemon) {
+                if (!apiPokemonIds.contains(entity.getId())) {
+                    db.pokemonDao().delete(entity);
+                    removed = true;
+                }
+            }
+            if (removed && isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    pokemonList.removeIf(pokemon -> !apiPokemonIds.contains(pokemon.getId()));
+                    filteredPokemonList.clear();
+                    filteredPokemonList.addAll(pokemonList);
+                    adapter.notifyDataSetChanged();
+                });
+            }
+        }).start();
     }
 
     private void savePokemonToDatabase(PokemonDetail detail) {

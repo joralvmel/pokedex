@@ -1,6 +1,7 @@
 package es.upm.miw.pokedex.db;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -14,4 +15,7 @@ public interface PokemonDao {
 
     @Query("SELECT * FROM pokemon ORDER BY id")
     List<PokemonEntity> getAllPokemon();
+
+    @Delete
+    void delete(PokemonEntity pokemonEntity);
 }
