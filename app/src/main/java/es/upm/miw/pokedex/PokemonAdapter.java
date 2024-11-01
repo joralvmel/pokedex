@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 import es.upm.miw.pokedex.api.PokemonDetail;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
-    private final List<PokemonDetail> pokemonList;
+    private final List<PokemonDetail> filteredPokemonList;
 
-    public PokemonAdapter(List<PokemonDetail> pokemonList) {
-        this.pokemonList = pokemonList;
+    public PokemonAdapter(List<PokemonDetail> filteredPokemonList) {
+        this.filteredPokemonList = filteredPokemonList;
     }
 
     @NonNull
@@ -30,7 +30,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
     @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull PokemonViewHolder holder, int position) {
-        PokemonDetail pokemon = pokemonList.get(position);
+        PokemonDetail pokemon = filteredPokemonList.get(position);
         holder.nameTextView.setText(pokemon.getName());
         holder.numberTextView.setText(String.format("#%03d", pokemon.getId()));
         Glide.with(holder.itemView.getContext()).load(pokemon.getSprites().getFrontDefault()).into(holder.imageView);
@@ -43,7 +43,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
 
     @Override
     public int getItemCount() {
-        return pokemonList.size();
+        return filteredPokemonList.size();
     }
 
     public static class PokemonViewHolder extends RecyclerView.ViewHolder {

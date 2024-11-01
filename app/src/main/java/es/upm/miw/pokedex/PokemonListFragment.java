@@ -5,16 +5,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import es.upm.miw.pokedex.api.ApiClient;
@@ -32,6 +36,8 @@ public class PokemonListFragment extends Fragment {
     private PokeApiService apiService;
     private PokemonAdapter adapter;
     private final List<PokemonDetail> pokemonList = new ArrayList<>();
+    private final List<PokemonDetail> filteredPokemonList = new ArrayList<>();
+    private final Set<Integer> pokemonIds = new HashSet<>();
     private AppDatabase db;
 
     @Override
@@ -40,13 +46,27 @@ public class PokemonListFragment extends Fragment {
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new PokemonAdapter(pokemonList);
+        adapter = new PokemonAdapter(filteredPokemonList);
         recyclerView.setAdapter(adapter);
 
         db = AppDatabase.getDatabase(getContext());
         apiService = ApiClient.getClient().create(PokeApiService.class);
 
         loadPokemonFromDatabase();
+
+        SearchView searchView = view.findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return true;
+            }
+        });
 
         return view;
     }
@@ -77,9 +97,14 @@ public class PokemonListFragment extends Fragment {
                     detail.getTypes().add(type);
                 }
                 pokemonList.add(detail);
+                pokemonIds.add(detail.getId());
             }
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> adapter.notifyDataSetChanged());
+                requireActivity().runOnUiThread(() -> {
+                    filteredPokemonList.clear();
+                    filteredPokemonList.addAll(pokemonList);
+                    adapter.notifyDataSetChanged();
+                });
             }
             fetchAllPokemon();
         }).start();
@@ -107,6 +132,9 @@ public class PokemonListFragment extends Fragment {
     }
 
     private void fetchPokemonDetail(int id) {
+        if (pokemonIds.contains(id)) {
+            return;
+        }
         apiService.getPokemonDetail(id).enqueue(new Callback<PokemonDetail>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -114,6 +142,7 @@ public class PokemonListFragment extends Fragment {
                 if (response.isSuccessful()) {
                     PokemonDetail detail = response.body();
                     pokemonList.add(detail);
+                    pokemonIds.add(Objects.requireNonNull(detail).getId());
                     savePokemonToDatabase(detail);
                     if (pokemonList.size() == 150) {
                         sortPokemonList();
@@ -143,5 +172,20 @@ public class PokemonListFragment extends Fragment {
 
     private void sortPokemonList() {
         pokemonList.sort(Comparator.comparingInt(PokemonDetail::getId));
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void filter(String text) {
+        filteredPokemonList.clear();
+        if (text.isEmpty()) {
+            filteredPokemonList.addAll(pokemonList);
+        } else {
+            for (PokemonDetail detail : pokemonList) {
+                if (detail.getName().toLowerCase().contains(text.toLowerCase())) {
+                    filteredPokemonList.add(detail);
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 }
