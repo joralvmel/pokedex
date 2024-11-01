@@ -1,5 +1,6 @@
 package es.upm.miw.pokedex;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,10 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import java.util.List;
+import java.util.stream.Collectors;
 import es.upm.miw.pokedex.api.PokemonDetail;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
-    private List<PokemonDetail> pokemonList;
+    private final List<PokemonDetail> pokemonList;
 
     public PokemonAdapter(List<PokemonDetail> pokemonList) {
         this.pokemonList = pokemonList;
@@ -25,6 +27,7 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         return new PokemonViewHolder(view);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void onBindViewHolder(@NonNull PokemonViewHolder holder, int position) {
         PokemonDetail pokemon = pokemonList.get(position);
@@ -32,11 +35,10 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         holder.numberTextView.setText(String.format("#%03d", pokemon.getId()));
         Glide.with(holder.itemView.getContext()).load(pokemon.getSprites().getFrontDefault()).into(holder.imageView);
 
-        StringBuilder types = new StringBuilder();
-        for (PokemonDetail.Type type : pokemon.getTypes()) {
-            types.append(type.getTypeInfo().getName()).append(" ");
-        }
-        holder.typesTextView.setText(types.toString().trim());
+        String types = pokemon.getTypes().stream()
+                .map(type -> type.getTypeInfo().getName())
+                .collect(Collectors.joining(", "));
+        holder.typesTextView.setText(types);
     }
 
     @Override
