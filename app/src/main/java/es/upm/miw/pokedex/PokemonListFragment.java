@@ -70,7 +70,8 @@ public class PokemonListFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filter(newText);
+                currentSearchText = newText;
+                applyFilters();
                 return true;
             }
         });
@@ -79,20 +80,21 @@ public class PokemonListFragment extends Fragment {
         reloadButton.setOnClickListener(v -> fetchAllPokemon());
 
         Spinner typeSpinner = view.findViewById(R.id.type_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.pokemon_types, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        typeSpinner.setAdapter(adapter);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(typeAdapter);
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedType = parent.getItemAtPosition(position).toString();
-                filterByType(selectedType);
+                currentType = parent.getItemAtPosition(position).toString();
+                applyFilters();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                filterByType("All");
+                currentType = "All";
+                applyFilters();
             }
         });
 
@@ -104,13 +106,14 @@ public class PokemonListFragment extends Fragment {
         generationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedGeneration = parent.getItemAtPosition(position).toString();
-                filterByGeneration(selectedGeneration);
+                currentGeneration = parent.getItemAtPosition(position).toString();
+                applyFilters();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                filterByGeneration("National");
+                currentGeneration = "National";
+                applyFilters();
             }
         });
 
@@ -274,43 +277,35 @@ public class PokemonListFragment extends Fragment {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void filter(String text) {
+    private void applyFilters() {
         filteredPokemonList.clear();
-        if (text.isEmpty()) {
-            filteredPokemonList.addAll(pokemonList);
-        } else {
-            for (PokemonDetail detail : pokemonList) {
-                if (detail.getName().toLowerCase().contains(text.toLowerCase())) {
-                    filteredPokemonList.add(detail);
-                }
+        for (PokemonDetail detail : pokemonList) {
+            if (matchesSearchText(detail) && matchesType(detail) && matchesGeneration(detail)) {
+                filteredPokemonList.add(detail);
             }
         }
         adapter.notifyDataSetChanged();
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void filterByType(String type) {
-        filteredPokemonList.clear();
-        if (type.equals("All")) {
-            filteredPokemonList.addAll(pokemonList);
-        } else {
-            for (PokemonDetail detail : pokemonList) {
-                for (PokemonDetail.Type pokemonType : detail.getTypes()) {
-                    if (pokemonType.getTypeInfo().getName().equalsIgnoreCase(type)) {
-                        filteredPokemonList.add(detail);
-                        break;
-                    }
-                }
-            }
-        }
-        adapter.notifyDataSetChanged();
+    private boolean matchesSearchText(PokemonDetail detail) {
+        return currentSearchText.isEmpty() || detail.getName().toLowerCase().contains(currentSearchText.toLowerCase());
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private void filterByGeneration(String generation) {
-        filteredPokemonList.clear();
+    private boolean matchesType(PokemonDetail detail) {
+        if (currentType.equals("All")) {
+            return true;
+        }
+        for (PokemonDetail.Type pokemonType : detail.getTypes()) {
+            if (pokemonType.getTypeInfo().getName().equalsIgnoreCase(currentType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesGeneration(PokemonDetail detail) {
         int startId = 1, endId = 1025;
-        switch (generation) {
+        switch (currentGeneration) {
             case "Generation 1":
                 endId = 151;
                 break;
@@ -344,14 +339,8 @@ public class PokemonListFragment extends Fragment {
                 break;
             case "Generation 9":
                 startId = 906;
-                endId = 1025;
                 break;
         }
-        for (PokemonDetail detail : pokemonList) {
-            if (detail.getId() >= startId && detail.getId() <= endId) {
-                filteredPokemonList.add(detail);
-            }
-        }
-        adapter.notifyDataSetChanged();
+        return detail.getId() >= startId && detail.getId() <= endId;
     }
 }
