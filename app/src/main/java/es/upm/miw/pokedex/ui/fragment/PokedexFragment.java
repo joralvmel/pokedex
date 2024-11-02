@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import es.upm.miw.pokedex.R;
 
 public class PokedexFragment extends Fragment {
 

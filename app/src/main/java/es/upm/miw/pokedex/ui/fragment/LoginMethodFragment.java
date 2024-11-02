@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import es.upm.miw.pokedex.R;
 
 public class LoginMethodFragment extends Fragment {
 

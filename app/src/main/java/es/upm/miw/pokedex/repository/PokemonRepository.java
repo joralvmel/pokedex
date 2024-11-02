@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.repository;
 
 import android.content.Context;
 
@@ -20,8 +20,8 @@ import es.upm.miw.pokedex.api.PokeApiService;
 import es.upm.miw.pokedex.api.Pokemon;
 import es.upm.miw.pokedex.api.PokemonDetail;
 import es.upm.miw.pokedex.api.PokemonResponse;
-import es.upm.miw.pokedex.db.AppDatabase;
-import es.upm.miw.pokedex.db.PokemonEntity;
+import es.upm.miw.pokedex.database.AppDatabase;
+import es.upm.miw.pokedex.database.PokemonEntity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,7 +77,7 @@ public class PokemonRepository {
         }).start();
     }
 
-    void fetchAllPokemon() {
+    public void fetchAllPokemon() {
         apiService.getAllPokemon().enqueue(new Callback<PokemonResponse>() {
             @Override
             public void onResponse(@NonNull Call<PokemonResponse> call, @NonNull Response<PokemonResponse> response) {

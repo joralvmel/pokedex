@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.util;
 
 import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;

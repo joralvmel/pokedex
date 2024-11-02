@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.ui.fragment;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,6 +17,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import es.upm.miw.pokedex.R;
 
 public class EmailPasswordFragment extends BaseFragment {
 

@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex.db;
+package es.upm.miw.pokedex.database;
 
 import androidx.room.Dao;
 import androidx.room.Delete;

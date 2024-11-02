@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.ui.viewmodel;
 
 import android.app.Application;
 
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.upm.miw.pokedex.api.PokemonDetail;
+import es.upm.miw.pokedex.repository.PokemonRepository;
 
 public class PokemonViewModel extends AndroidViewModel {
     private final PokemonRepository repository;

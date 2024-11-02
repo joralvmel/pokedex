@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex.db;
+package es.upm.miw.pokedex.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;

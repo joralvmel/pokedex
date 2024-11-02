@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex.db;
+package es.upm.miw.pokedex.database;
 
 import androidx.room.Database;
 import androidx.room.Room;

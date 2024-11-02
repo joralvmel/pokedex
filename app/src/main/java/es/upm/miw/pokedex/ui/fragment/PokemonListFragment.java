@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import es.upm.miw.pokedex.ui.viewmodel.PokemonViewModel;
+import es.upm.miw.pokedex.R;
+import es.upm.miw.pokedex.adapter.PokemonAdapter;
+
 public class PokemonListFragment extends Fragment {
     private PokemonViewModel viewModel;
     private PokemonAdapter adapter;
@@ -32,9 +36,7 @@ public class PokemonListFragment extends Fragment {
         adapter = new PokemonAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        viewModel.getFilteredPokemonList().observe(getViewLifecycleOwner(), pokemonDetails -> {
-            adapter.setPokemonList(pokemonDetails);
-        });
+        viewModel.getFilteredPokemonList().observe(getViewLifecycleOwner(), pokemonDetails -> adapter.setPokemonList(pokemonDetails));
 
         SearchView searchView = view.findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
