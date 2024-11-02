@@ -3,6 +3,7 @@ package es.upm.miw.pokedex.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +19,46 @@ import java.util.List;
 import es.upm.miw.pokedex.R;
 import es.upm.miw.pokedex.api.PokemonDetail;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
     private List<PokemonDetail> pokemonList;
+    private final SparseBooleanArray favoriteStatusArray;
+    private final DatabaseReference databaseReference;
+    private final FirebaseUser currentUser;
 
     public PokemonAdapter(List<PokemonDetail> pokemonList) {
         this.pokemonList = pokemonList;
+        this.favoriteStatusArray = new SparseBooleanArray();
+        this.databaseReference = FirebaseDatabase.getInstance().getReference("favorites");
+        this.currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            databaseReference.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    favoriteStatusArray.clear();
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                        int pokemonId = Integer.parseInt(childSnapshot.getKey());
+                        boolean isFavorite = Boolean.TRUE.equals(childSnapshot.getValue(Boolean.class));
+                        favoriteStatusArray.put(pokemonId, isFavorite);
+                    }
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle possible errors.
+                }
+            });
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -64,6 +100,24 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
 
             holder.typesContainer.addView(typeTextView);
         }
+
+        boolean isFavorite = favoriteStatusArray.get(pokemon.getId(), false);
+        holder.heartIconEmpty.setVisibility(isFavorite ? View.GONE : View.VISIBLE);
+        holder.heartIconFilled.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+
+        View.OnClickListener toggleFavoriteListener = v -> {
+            boolean newFavoriteStatus = !favoriteStatusArray.get(pokemon.getId(), false);
+            favoriteStatusArray.put(pokemon.getId(), newFavoriteStatus);
+            holder.heartIconEmpty.setVisibility(newFavoriteStatus ? View.GONE : View.VISIBLE);
+            holder.heartIconFilled.setVisibility(newFavoriteStatus ? View.VISIBLE : View.GONE);
+
+            if (currentUser != null) {
+                databaseReference.child(currentUser.getUid()).child(String.valueOf(pokemon.getId())).setValue(newFavoriteStatus);
+            }
+        };
+
+        holder.heartIconEmpty.setOnClickListener(toggleFavoriteListener);
+        holder.heartIconFilled.setOnClickListener(toggleFavoriteListener);
     }
 
     @Override
@@ -76,6 +130,8 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         TextView nameTextView;
         TextView numberTextView;
         LinearLayout typesContainer;
+        ImageView heartIconEmpty;
+        ImageView heartIconFilled;
 
         public PokemonViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,6 +139,8 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
             nameTextView = itemView.findViewById(R.id.pokemon_name);
             numberTextView = itemView.findViewById(R.id.pokemon_number);
             typesContainer = itemView.findViewById(R.id.pokemon_types_container);
+            heartIconEmpty = itemView.findViewById(R.id.heart_icon_empty);
+            heartIconFilled = itemView.findViewById(R.id.heart_icon_filled);
         }
     }
 

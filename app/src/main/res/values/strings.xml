@@ -28,6 +28,7 @@
     <string name="pokedex">Pokedex</string>
     <string name="load_list">Load Pokemon List</string>
     <string name="pokemon_image_description">Pokemon Sprite</string>
+    <string name="favorite_icon">Favorite</string>
 
     <string-array name="pokemon_types">
         <item>All</item>
@@ -62,5 +63,10 @@
         <item>Generation 7</item>
         <item>Generation 8</item>
         <item>Generation 9</item>
+    </string-array>
+
+    <string-array name="favorite_filter_options">
+        <item>All</item>
+        <item>Favorites</item>
     </string-array>
 </resources>

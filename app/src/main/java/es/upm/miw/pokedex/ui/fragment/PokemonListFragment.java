@@ -89,6 +89,23 @@ public class PokemonListFragment extends Fragment {
             }
         });
 
+        Spinner favoriteSpinner = view.findViewById(R.id.favorite_spinner);
+        ArrayAdapter<CharSequence> favoriteAdapter = ArrayAdapter.createFromResource(requireContext(),
+                R.array.favorite_filter_options, android.R.layout.simple_spinner_item);
+        favoriteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        favoriteSpinner.setAdapter(favoriteAdapter);
+        favoriteSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewModel.setCurrentFavoriteSelection(parent.getItemAtPosition(position).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                viewModel.setCurrentFavoriteSelection("All");
+            }
+        });
+
         return view;
     }
 }
