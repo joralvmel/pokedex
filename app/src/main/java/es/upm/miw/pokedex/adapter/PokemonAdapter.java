@@ -3,6 +3,7 @@ package es.upm.miw.pokedex.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import es.upm.miw.pokedex.api.PokemonDetail;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
     private List<PokemonDetail> pokemonList;
+    private final SparseBooleanArray favoriteStatusArray = new SparseBooleanArray();
 
     public PokemonAdapter(List<PokemonDetail> pokemonList) {
         this.pokemonList = pokemonList;
@@ -64,6 +66,20 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
 
             holder.typesContainer.addView(typeTextView);
         }
+
+        boolean isFavorite = favoriteStatusArray.get(position, false);
+        holder.heartIconEmpty.setVisibility(isFavorite ? View.GONE : View.VISIBLE);
+        holder.heartIconFilled.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+
+        View.OnClickListener toggleFavoriteListener = v -> {
+            boolean newFavoriteStatus = !favoriteStatusArray.get(position, false);
+            favoriteStatusArray.put(position, newFavoriteStatus);
+            holder.heartIconEmpty.setVisibility(newFavoriteStatus ? View.GONE : View.VISIBLE);
+            holder.heartIconFilled.setVisibility(newFavoriteStatus ? View.VISIBLE : View.GONE);
+        };
+
+        holder.heartIconEmpty.setOnClickListener(toggleFavoriteListener);
+        holder.heartIconFilled.setOnClickListener(toggleFavoriteListener);
     }
 
     @Override
@@ -76,6 +92,8 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
         TextView nameTextView;
         TextView numberTextView;
         LinearLayout typesContainer;
+        ImageView heartIconEmpty;
+        ImageView heartIconFilled;
 
         public PokemonViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -83,6 +101,8 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
             nameTextView = itemView.findViewById(R.id.pokemon_name);
             numberTextView = itemView.findViewById(R.id.pokemon_number);
             typesContainer = itemView.findViewById(R.id.pokemon_types_container);
+            heartIconEmpty = itemView.findViewById(R.id.heart_icon_empty);
+            heartIconFilled = itemView.findViewById(R.id.heart_icon_filled);
         }
     }
 

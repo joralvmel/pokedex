@@ -2,14 +2,34 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/heart_icon_empty"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/favorite_icon"
+        android:src="@drawable/ic_heart_shape_empty"
+        android:visibility="visible"
+        android:layout_gravity="center_vertical" />
+
+    <ImageView
+        android:id="@+id/heart_icon_filled"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/favorite_icon"
+        android:src="@drawable/ic_heart_shape_filled"
+        android:visibility="gone"
+        android:layout_gravity="center_vertical" />
 
     <ImageView
         android:id="@+id/pokemon_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginEnd="8dp"
-        android:contentDescription="@string/pokemon_image_description" />
+        android:contentDescription="@string/pokemon_image_description"
+        android:layout_gravity="center_vertical" />
 
     <LinearLayout
         android:layout_width="0dp"
