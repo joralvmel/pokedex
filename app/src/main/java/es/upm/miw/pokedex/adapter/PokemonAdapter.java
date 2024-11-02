@@ -29,21 +29,22 @@ import com.google.firebase.database.ValueEventListener;
 
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
     private List<PokemonDetail> pokemonList;
-    private final SparseBooleanArray favoriteStatusArray = new SparseBooleanArray();
+    private final SparseBooleanArray favoriteStatusArray;
     private final DatabaseReference databaseReference;
     private final FirebaseUser currentUser;
 
     public PokemonAdapter(List<PokemonDetail> pokemonList) {
         this.pokemonList = pokemonList;
+        this.favoriteStatusArray = new SparseBooleanArray();
         this.databaseReference = FirebaseDatabase.getInstance().getReference("favorites");
         this.currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        // Fetch favorite status from Firebase
         if (currentUser != null) {
             databaseReference.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
                 @SuppressLint("NotifyDataSetChanged")
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    favoriteStatusArray.clear();
                     for (DataSnapshot childSnapshot : snapshot.getChildren()) {
                         int pokemonId = Integer.parseInt(childSnapshot.getKey());
                         boolean isFavorite = Boolean.TRUE.equals(childSnapshot.getValue(Boolean.class));
@@ -110,7 +111,6 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
             holder.heartIconEmpty.setVisibility(newFavoriteStatus ? View.GONE : View.VISIBLE);
             holder.heartIconFilled.setVisibility(newFavoriteStatus ? View.VISIBLE : View.GONE);
 
-            // Save favorite status to Firebase under the current user's node
             if (currentUser != null) {
                 databaseReference.child(currentUser.getUid()).child(String.valueOf(pokemon.getId())).setValue(newFavoriteStatus);
             }

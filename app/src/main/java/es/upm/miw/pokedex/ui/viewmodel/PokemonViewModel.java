@@ -1,12 +1,21 @@
 package es.upm.miw.pokedex.ui.viewmodel;
 
 import android.app.Application;
+import android.util.SparseBooleanArray;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +29,36 @@ public class PokemonViewModel extends AndroidViewModel {
     private final MutableLiveData<String> currentSearchText = new MutableLiveData<>("");
     private final MutableLiveData<String> currentType = new MutableLiveData<>("All");
     private final MutableLiveData<String> currentGeneration = new MutableLiveData<>("National");
+    private final MutableLiveData<String> currentFavoriteSelection = new MutableLiveData<>("All");
+    private final SparseBooleanArray favoriteStatusArray = new SparseBooleanArray();
 
     public PokemonViewModel(@NonNull Application application) {
         super(application);
         repository = new PokemonRepository(application);
         pokemonList = repository.getPokemonList();
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("favorites");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            databaseReference.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    favoriteStatusArray.clear();
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                        int pokemonId = Integer.parseInt(childSnapshot.getKey());
+                        boolean isFavorite = Boolean.TRUE.equals(childSnapshot.getValue(Boolean.class));
+                        favoriteStatusArray.put(pokemonId, isFavorite);
+                    }
+                    filterPokemonList();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle possible errors.
+                }
+            });
+        }
     }
 
     public void setCurrentSearchText(String searchText) {
@@ -39,20 +73,27 @@ public class PokemonViewModel extends AndroidViewModel {
         currentGeneration.setValue(generation);
     }
 
+    public void setCurrentFavoriteSelection(String favoriteSelection) {
+        currentFavoriteSelection.setValue(favoriteSelection);
+        filterPokemonList();
+    }
+
     public LiveData<List<PokemonDetail>> getFilteredPokemonList() {
         return Transformations.switchMap(currentSearchText, searchText ->
                 Transformations.switchMap(currentType, type ->
                         Transformations.switchMap(currentGeneration, generation ->
-                                Transformations.map(pokemonList, pokemonDetails -> {
-                                    List<PokemonDetail> filtered = new ArrayList<>();
-                                    for (PokemonDetail detail : pokemonDetails) {
-                                        if (matchesSearchText(detail, searchText) && matchesType(detail, type) && matchesGeneration(detail, generation)) {
-                                            detail.setName(capitalizeFirstLetter(detail.getName()));
-                                            filtered.add(detail);
-                                        }
-                                    }
-                                    return filtered;
-                                })
+                                Transformations.switchMap(currentFavoriteSelection, favoriteSelection ->
+                                        Transformations.map(pokemonList, pokemonDetails -> {
+                                            List<PokemonDetail> filtered = new ArrayList<>();
+                                            for (PokemonDetail detail : pokemonDetails) {
+                                                if (matchesSearchText(detail, searchText) && matchesType(detail, type) && matchesGeneration(detail, generation) && matchesFavoriteSelection(detail, favoriteSelection)) {
+                                                    detail.setName(capitalizeFirstLetter(detail.getName()));
+                                                    filtered.add(detail);
+                                                }
+                                            }
+                                            return filtered;
+                                        })
+                                )
                         )
                 )
         );
@@ -117,6 +158,14 @@ public class PokemonViewModel extends AndroidViewModel {
         return detail.getId() >= startId && detail.getId() <= endId;
     }
 
+    private boolean matchesFavoriteSelection(PokemonDetail detail, String favoriteSelection) {
+        if (favoriteSelection == null || favoriteSelection.equals("All")) {
+            return true;
+        }
+        boolean isFavorite = favoriteStatusArray.get(detail.getId(), false);
+        return favoriteSelection.equals("Favorites") == isFavorite;
+    }
+
     private String capitalizeFirstLetter(String str) {
         if (str == null || str.isEmpty()) {
             return str;
@@ -126,5 +175,25 @@ public class PokemonViewModel extends AndroidViewModel {
 
     public void fetchAllPokemon() {
         repository.fetchAllPokemon();
+    }
+
+    private void filterPokemonList() {
+        List<PokemonDetail> allPokemon = repository.getPokemonList().getValue();
+        if (allPokemon == null) {
+            return;
+        }
+        List<PokemonDetail> filteredList = new ArrayList<>();
+        String favoriteSelection = currentFavoriteSelection.getValue();
+        for (PokemonDetail pokemon : allPokemon) {
+            boolean isFavorite = favoriteStatusArray.get(pokemon.getId(), false);
+            if ("Favorites".equals(favoriteSelection)) {
+                if (isFavorite) {
+                    filteredList.add(pokemon);
+                }
+            } else if ("All".equals(favoriteSelection)) {
+                filteredList.add(pokemon);
+            }
+        }
+        ((MutableLiveData<List<PokemonDetail>>) pokemonList).setValue(filteredList);
     }
 }
