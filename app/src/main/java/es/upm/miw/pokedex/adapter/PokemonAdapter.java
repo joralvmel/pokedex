@@ -19,12 +19,45 @@ import java.util.List;
 import es.upm.miw.pokedex.R;
 import es.upm.miw.pokedex.api.PokemonDetail;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonViewHolder> {
     private List<PokemonDetail> pokemonList;
     private final SparseBooleanArray favoriteStatusArray = new SparseBooleanArray();
+    private final DatabaseReference databaseReference;
+    private final FirebaseUser currentUser;
 
     public PokemonAdapter(List<PokemonDetail> pokemonList) {
         this.pokemonList = pokemonList;
+        this.databaseReference = FirebaseDatabase.getInstance().getReference("favorites");
+        this.currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // Fetch favorite status from Firebase
+        if (currentUser != null) {
+            databaseReference.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+                        int pokemonId = Integer.parseInt(childSnapshot.getKey());
+                        boolean isFavorite = Boolean.TRUE.equals(childSnapshot.getValue(Boolean.class));
+                        favoriteStatusArray.put(pokemonId, isFavorite);
+                    }
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle possible errors.
+                }
+            });
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -67,15 +100,20 @@ public class PokemonAdapter extends RecyclerView.Adapter<PokemonAdapter.PokemonV
             holder.typesContainer.addView(typeTextView);
         }
 
-        boolean isFavorite = favoriteStatusArray.get(position, false);
+        boolean isFavorite = favoriteStatusArray.get(pokemon.getId(), false);
         holder.heartIconEmpty.setVisibility(isFavorite ? View.GONE : View.VISIBLE);
         holder.heartIconFilled.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
 
         View.OnClickListener toggleFavoriteListener = v -> {
-            boolean newFavoriteStatus = !favoriteStatusArray.get(position, false);
-            favoriteStatusArray.put(position, newFavoriteStatus);
+            boolean newFavoriteStatus = !favoriteStatusArray.get(pokemon.getId(), false);
+            favoriteStatusArray.put(pokemon.getId(), newFavoriteStatus);
             holder.heartIconEmpty.setVisibility(newFavoriteStatus ? View.GONE : View.VISIBLE);
             holder.heartIconFilled.setVisibility(newFavoriteStatus ? View.VISIBLE : View.GONE);
+
+            // Save favorite status to Firebase under the current user's node
+            if (currentUser != null) {
+                databaseReference.child(currentUser.getUid()).child(String.valueOf(pokemon.getId())).setValue(newFavoriteStatus);
+            }
         };
 
         holder.heartIconEmpty.setOnClickListener(toggleFavoriteListener);
