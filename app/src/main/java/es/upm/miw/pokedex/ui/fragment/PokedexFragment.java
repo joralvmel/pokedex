@@ -1,4 +1,4 @@
-package es.upm.miw.pokedex;
+package es.upm.miw.pokedex.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +15,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import es.upm.miw.pokedex.R;
 
 public class PokedexFragment extends Fragment {
 
@@ -40,12 +42,16 @@ public class PokedexFragment extends Fragment {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
 
+        // Load PokemonListFragment
+        loadPokemonListFragment();
+
         return view;
     }
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            statusTextView.setText(getString(R.string.user_status, user.getEmail()));
+            String email = user.getEmail();
+            statusTextView.setText(email);
         } else {
             statusTextView.setText(R.string.not_authenticated);
         }
@@ -63,4 +69,10 @@ public class PokedexFragment extends Fragment {
         transaction.commit();
     }
 
+    private void loadPokemonListFragment() {
+        PokemonListFragment pokemonListFragment = new PokemonListFragment();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.pokemon_list_container, pokemonListFragment);
+        transaction.commit();
+    }
 }

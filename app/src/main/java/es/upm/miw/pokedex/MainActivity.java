@@ -6,6 +6,9 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import es.upm.miw.pokedex.ui.fragment.EmailPasswordFragment;
+import es.upm.miw.pokedex.ui.fragment.LoginMethodFragment;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
