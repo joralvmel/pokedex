@@ -27,6 +27,7 @@
     <string name="user_email">User Email</string>
     <string name="pokedex">Pokedex</string>
     <string name="load_list">Load Pokemon List</string>
+    <string name="pokemon_image_description">Pokemon Sprite</string>
 
     <string-array name="pokemon_types">
         <item>All</item>

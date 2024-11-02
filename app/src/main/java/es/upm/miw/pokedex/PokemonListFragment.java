@@ -276,11 +276,19 @@ public class PokemonListFragment extends Fragment {
         pokemonList.sort(Comparator.comparingInt(PokemonDetail::getId));
     }
 
+    private String capitalizeFirstLetter(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private void applyFilters() {
         filteredPokemonList.clear();
         for (PokemonDetail detail : pokemonList) {
             if (matchesSearchText(detail) && matchesType(detail) && matchesGeneration(detail)) {
+                detail.setName(capitalizeFirstLetter(detail.getName()));
                 filteredPokemonList.add(detail);
             }
         }
