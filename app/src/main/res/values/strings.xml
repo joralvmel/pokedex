@@ -29,6 +29,8 @@
     <string name="load_list">Load Pokemon List</string>
     <string name="pokemon_image_description">Pokemon Sprite</string>
     <string name="favorite_icon">Favorite</string>
+    <string name="fetching_pokemon">Fetching all Pokémon…</string>
+    <string name="reset_filters">Filters have been reset</string>
 
     <string-array name="pokemon_types">
         <item>All</item>

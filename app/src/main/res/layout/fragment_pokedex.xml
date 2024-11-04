@@ -16,6 +16,12 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <Button
+            android:id="@+id/reload_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/reload" />
+
+        <Button
             android:id="@+id/signOutButton"
             android:layout_width="wrap_content"
             android:layout_height="48dp"

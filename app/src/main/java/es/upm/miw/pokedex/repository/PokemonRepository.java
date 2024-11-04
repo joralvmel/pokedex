@@ -1,6 +1,7 @@
 package es.upm.miw.pokedex.repository;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -15,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import es.upm.miw.pokedex.R;
 import es.upm.miw.pokedex.api.ApiClient;
 import es.upm.miw.pokedex.api.PokeApiService;
 import es.upm.miw.pokedex.api.Pokemon;
@@ -31,8 +33,10 @@ public class PokemonRepository {
     private final AppDatabase db;
     private final MutableLiveData<List<PokemonDetail>> pokemonListLiveData = new MutableLiveData<>();
     private final Set<Integer> pokemonIds = new HashSet<>();
+    private final Context context;
 
     public PokemonRepository(Context context) {
+        this.context = context;
         db = AppDatabase.getDatabase(context);
         apiService = ApiClient.getClient().create(PokeApiService.class);
     }
@@ -78,6 +82,7 @@ public class PokemonRepository {
     }
 
     public void fetchAllPokemon() {
+        Toast.makeText(context, R.string.fetching_pokemon, Toast.LENGTH_SHORT).show();
         apiService.getAllPokemon().enqueue(new Callback<PokemonResponse>() {
             @Override
             public void onResponse(@NonNull Call<PokemonResponse> call, @NonNull Response<PokemonResponse> response) {

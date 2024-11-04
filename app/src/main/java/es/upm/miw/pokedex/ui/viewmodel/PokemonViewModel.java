@@ -196,4 +196,11 @@ public class PokemonViewModel extends AndroidViewModel {
         }
         ((MutableLiveData<List<PokemonDetail>>) pokemonList).setValue(filteredList);
     }
+
+    public void resetFilters() {
+        setCurrentSearchText("");
+        setCurrentType("All");
+        setCurrentGeneration("National");
+        setCurrentFavoriteSelection("All");
+    }
 }

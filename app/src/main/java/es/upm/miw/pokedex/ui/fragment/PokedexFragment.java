@@ -12,11 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import es.upm.miw.pokedex.R;
+import es.upm.miw.pokedex.ui.viewmodel.PokemonViewModel;
 
 public class PokedexFragment extends Fragment {
 
@@ -34,9 +36,14 @@ public class PokedexFragment extends Fragment {
         // Initialize UI elements
         statusTextView = view.findViewById(R.id.statusTextView);
         Button signOutButton = view.findViewById(R.id.signOutButton);
+        Button reloadButton = view.findViewById(R.id.reload_button);
 
         // Configure buttons
         signOutButton.setOnClickListener(v -> signOut());
+        reloadButton.setOnClickListener(v -> {
+            PokemonViewModel viewModel = new ViewModelProvider(this).get(PokemonViewModel.class);
+            viewModel.fetchAllPokemon();
+        });
 
         // Check current user and update UI
         FirebaseUser currentUser = mAuth.getCurrentUser();
