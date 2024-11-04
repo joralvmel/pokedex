@@ -30,4 +30,6 @@
     <color name="type_steel">#B8B8D0</color>
     <color name="type_fairy">#EE99AC</color>
     <color name="type_default">#A8A878</color>
+
+    <color name="heart_icon_color">#000000</color>
 </resources>

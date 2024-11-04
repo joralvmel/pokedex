@@ -10,4 +10,13 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         app:menu="@menu/drawer_menu" />
+
+    <Switch
+        android:id="@+id/theme_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dark_mode"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 </RelativeLayout>

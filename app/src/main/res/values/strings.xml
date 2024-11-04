@@ -34,6 +34,7 @@
     <string name="current_user">email@example.com</string>
     <string name="navigation_drawer_open">Navigation Drawer Open</string>
     <string name="navigation_drawer_close">Navigation Drawer Close</string>
+    <string name="dark_mode">Dark Mode</string>
 
     <string-array name="pokemon_types">
         <item>All</item>
