@@ -99,6 +99,10 @@ public class PokemonViewModel extends AndroidViewModel {
         );
     }
 
+    public LiveData<Boolean> getIsFetching() {
+        return repository.getIsFetching();
+    }
+
     private boolean matchesSearchText(PokemonDetail detail, String searchText) {
         return searchText == null || searchText.isEmpty() || detail.getName().toLowerCase().contains(searchText.toLowerCase());
     }

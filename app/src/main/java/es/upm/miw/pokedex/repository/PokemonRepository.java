@@ -37,6 +37,7 @@ public class PokemonRepository {
     private final PokeApiService apiService;
     private final AppDatabase db;
     private final MutableLiveData<List<PokemonDetail>> pokemonListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isFetching = new MutableLiveData<>(false);
     private final Set<Integer> pokemonIds = new HashSet<>();
     private final Context context;
     private final AtomicInteger pendingFetches = new AtomicInteger(0);
@@ -50,6 +51,10 @@ public class PokemonRepository {
     public LiveData<List<PokemonDetail>> getPokemonList() {
         loadPokemonFromDatabase();
         return pokemonListLiveData;
+    }
+
+    public LiveData<Boolean> getIsFetching() {
+        return isFetching;
     }
 
     private void loadPokemonFromDatabase() {
@@ -87,6 +92,10 @@ public class PokemonRepository {
     }
 
     public void fetchAllPokemon() {
+        if (Boolean.TRUE.equals(isFetching.getValue())) {
+            return;
+        }
+        isFetching.postValue(true);
         new Handler(Looper.getMainLooper()).post(() ->
                 Toast.makeText(context, R.string.fetching_pokemon, Toast.LENGTH_SHORT).show()
         );
@@ -109,6 +118,7 @@ public class PokemonRepository {
 
             @Override
             public void onFailure(@NonNull Call<PokemonResponse> call, @NonNull Throwable t) {
+                isFetching.postValue(false);
                 // Handle failure
             }
         });
@@ -139,6 +149,7 @@ public class PokemonRepository {
                     }
                 }
                 if (pendingFetches.decrementAndGet() == 0) {
+                    isFetching.postValue(false);
                     restartApp();
                 }
             }
@@ -146,7 +157,7 @@ public class PokemonRepository {
             @Override
             public void onFailure(@NonNull Call<PokemonDetail> call, @NonNull Throwable t) {
                 if (pendingFetches.decrementAndGet() == 0) {
-                    restartApp();
+                    isFetching.postValue(false);
                 }
                 // Handle failure
             }

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -28,6 +29,8 @@ public class PokemonListFragment extends Fragment {
     private Spinner typeSpinner;
     private Spinner generationSpinner;
     private Spinner favoriteSpinner;
+    private ProgressBar progressBar;
+    private RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -35,12 +38,32 @@ public class PokemonListFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(PokemonViewModel.class);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new PokemonAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        viewModel.getFilteredPokemonList().observe(getViewLifecycleOwner(), pokemonDetails -> adapter.setPokemonList(pokemonDetails));
+        progressBar = view.findViewById(R.id.progress_bar);
+
+        viewModel.getFilteredPokemonList().observe(getViewLifecycleOwner(), pokemonDetails -> {
+            if (Boolean.FALSE.equals(viewModel.getIsFetching().getValue())) {
+                adapter.setPokemonList(pokemonDetails);
+                recyclerView.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+
+        viewModel.getIsFetching().observe(getViewLifecycleOwner(), isFetching -> {
+            if (isFetching) {
+                progressBar.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                if (viewModel.getFilteredPokemonList().getValue() != null) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
 
         SearchView searchView = view.findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
