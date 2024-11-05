@@ -26,15 +26,17 @@
             android:layout_height="24dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/ic_reload"
-            android:contentDescription="@string/reload" />
+            android:contentDescription="@string/reload"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:orientation="horizontal"
-        android:gravity="start|center_vertical">
+        android:gravity="center_vertical"
+        android:background="@color/statusBarColor">
 
         <Spinner
             android:id="@+id/favorite_spinner"

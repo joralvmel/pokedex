@@ -15,7 +15,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            android:background="@color/statusBarColor"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:navigationIconTint="@color/icon_color" />
 
         <FrameLayout
             android:id="@+id/pokemon_list_container"

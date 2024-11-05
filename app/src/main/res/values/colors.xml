@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#039BE5</color>
-    <color name="colorPrimaryDark">#0288D1</color>
-    <color name="colorAccent">#FFA000</color>
+    <!-- Primary colors -->
+    <color name="colorPrimary">#4CAF50</color>
+    <color name="colorSecondary">#0277BD</color>
 
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+    <!-- Accent color -->
+    <color name="colorAccent">#FF7043</color>
 
-    <color name="grey_100">#F5F5F5</color>
-    <color name="grey_300">#E0E0E0</color>
-    <color name="grey_500">#9E9E9E</color>
+    <!-- Background color -->
+    <color name="background_color">#F4F4F4</color>
 
+    <!-- Status Bar color -->
+    <color name="statusBarColor">#D4D4D4</color>
+
+    <!-- Text colors -->
+    <color name="primaryTextColor">#212121</color>
+    <color name="secondaryTextColor">#757575</color>
+
+    <!-- Error color -->
+    <color name="errorColor">#D32F2F</color>
+
+    <!-- Divider/Border color -->
+    <color name="dividerColor">#E0E0E0</color>
+
+    <!-- Icon color -->
+    <color name="icon_color">#000000</color>
+
+
+    <!-- Pokemon Type color -->
     <color name="type_normal">#A8A878</color>
     <color name="type_fire">#F08030</color>
     <color name="type_water">#6890F0</color>
@@ -30,6 +47,4 @@
     <color name="type_steel">#B8B8D0</color>
     <color name="type_fairy">#EE99AC</color>
     <color name="type_default">#A8A878</color>
-
-    <color name="heart_icon_color">#000000</color>
 </resources>
