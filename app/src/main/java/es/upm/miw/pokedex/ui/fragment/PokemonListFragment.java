@@ -7,8 +7,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,6 +26,11 @@ import es.upm.miw.pokedex.adapter.PokemonAdapter;
 public class PokemonListFragment extends Fragment {
     private PokemonViewModel viewModel;
     private PokemonAdapter adapter;
+    private Spinner typeSpinner;
+    private Spinner generationSpinner;
+    private Spinner favoriteSpinner;
+    private ProgressBar progressBar;
+    private RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,12 +38,32 @@ public class PokemonListFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(PokemonViewModel.class);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new PokemonAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        viewModel.getFilteredPokemonList().observe(getViewLifecycleOwner(), pokemonDetails -> adapter.setPokemonList(pokemonDetails));
+        progressBar = view.findViewById(R.id.progress_bar);
+
+        viewModel.getFilteredPokemonList().observe(getViewLifecycleOwner(), pokemonDetails -> {
+            if (Boolean.FALSE.equals(viewModel.getIsFetching().getValue())) {
+                adapter.setPokemonList(pokemonDetails);
+                recyclerView.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+
+        viewModel.getIsFetching().observe(getViewLifecycleOwner(), isFetching -> {
+            if (isFetching) {
+                progressBar.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                if (viewModel.getFilteredPokemonList().getValue() != null) {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
 
         SearchView searchView = view.findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -53,9 +80,16 @@ public class PokemonListFragment extends Fragment {
         });
 
         Button reloadButton = view.findViewById(R.id.reload_button);
-        reloadButton.setOnClickListener(v -> viewModel.fetchAllPokemon());
+        reloadButton.setOnClickListener(v -> {
+            viewModel.resetFilters();
+            typeSpinner.setSelection(0);
+            generationSpinner.setSelection(0);
+            favoriteSpinner.setSelection(0);
+            searchView.setQuery("", false);
+            Toast.makeText(getContext(), R.string.reset_filters, Toast.LENGTH_SHORT).show();
+        });
 
-        Spinner typeSpinner = view.findViewById(R.id.type_spinner);
+        typeSpinner = view.findViewById(R.id.type_spinner);
         ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.pokemon_types, android.R.layout.simple_spinner_item);
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -72,7 +106,7 @@ public class PokemonListFragment extends Fragment {
             }
         });
 
-        Spinner generationSpinner = view.findViewById(R.id.generation_spinner);
+        generationSpinner = view.findViewById(R.id.generation_spinner);
         ArrayAdapter<CharSequence> generationAdapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.pokemon_generations, android.R.layout.simple_spinner_item);
         generationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -89,7 +123,7 @@ public class PokemonListFragment extends Fragment {
             }
         });
 
-        Spinner favoriteSpinner = view.findViewById(R.id.favorite_spinner);
+        favoriteSpinner = view.findViewById(R.id.favorite_spinner);
         ArrayAdapter<CharSequence> favoriteAdapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.favorite_filter_options, android.R.layout.simple_spinner_item);
         favoriteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

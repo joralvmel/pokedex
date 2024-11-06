@@ -1,6 +1,10 @@
 package es.upm.miw.pokedex.repository;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -13,8 +17,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import es.upm.miw.pokedex.R;
 import es.upm.miw.pokedex.api.ApiClient;
 import es.upm.miw.pokedex.api.PokeApiService;
 import es.upm.miw.pokedex.api.Pokemon;
@@ -22,6 +28,7 @@ import es.upm.miw.pokedex.api.PokemonDetail;
 import es.upm.miw.pokedex.api.PokemonResponse;
 import es.upm.miw.pokedex.database.AppDatabase;
 import es.upm.miw.pokedex.database.PokemonEntity;
+import es.upm.miw.pokedex.MainActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,9 +37,13 @@ public class PokemonRepository {
     private final PokeApiService apiService;
     private final AppDatabase db;
     private final MutableLiveData<List<PokemonDetail>> pokemonListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isFetching = new MutableLiveData<>(false);
     private final Set<Integer> pokemonIds = new HashSet<>();
+    private final Context context;
+    private final AtomicInteger pendingFetches = new AtomicInteger(0);
 
     public PokemonRepository(Context context) {
+        this.context = context;
         db = AppDatabase.getDatabase(context);
         apiService = ApiClient.getClient().create(PokeApiService.class);
     }
@@ -40,6 +51,10 @@ public class PokemonRepository {
     public LiveData<List<PokemonDetail>> getPokemonList() {
         loadPokemonFromDatabase();
         return pokemonListLiveData;
+    }
+
+    public LiveData<Boolean> getIsFetching() {
+        return isFetching;
     }
 
     private void loadPokemonFromDatabase() {
@@ -60,7 +75,6 @@ public class PokemonRepository {
                     if (detail.getTypes() == null) {
                         detail.setTypes(new ArrayList<>());
                     }
-                    // Parse and set types
                     String[] typesArray = entity.getTypes().split(",");
                     for (String typeName : typesArray) {
                         PokemonDetail.Type type = new PokemonDetail.Type();
@@ -78,6 +92,13 @@ public class PokemonRepository {
     }
 
     public void fetchAllPokemon() {
+        if (Boolean.TRUE.equals(isFetching.getValue())) {
+            return;
+        }
+        isFetching.postValue(true);
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(context, R.string.fetching_pokemon, Toast.LENGTH_SHORT).show()
+        );
         apiService.getAllPokemon().enqueue(new Callback<PokemonResponse>() {
             @Override
             public void onResponse(@NonNull Call<PokemonResponse> call, @NonNull Response<PokemonResponse> response) {
@@ -88,6 +109,7 @@ public class PokemonRepository {
                         String[] urlParts = pokemon.getUrl().split("/");
                         int id = Integer.parseInt(urlParts[urlParts.length - 1]);
                         apiPokemonIds.add(id);
+                        pendingFetches.incrementAndGet();
                         fetchPokemonDetail(id);
                     }
                     removeMissingPokemon(apiPokemonIds);
@@ -96,6 +118,7 @@ public class PokemonRepository {
 
             @Override
             public void onFailure(@NonNull Call<PokemonResponse> call, @NonNull Throwable t) {
+                isFetching.postValue(false);
                 // Handle failure
             }
         });
@@ -125,10 +148,17 @@ public class PokemonRepository {
                         }
                     }
                 }
+                if (pendingFetches.decrementAndGet() == 0) {
+                    isFetching.postValue(false);
+                    restartApp();
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<PokemonDetail> call, @NonNull Throwable t) {
+                if (pendingFetches.decrementAndGet() == 0) {
+                    isFetching.postValue(false);
+                }
                 // Handle failure
             }
         });
@@ -193,5 +223,14 @@ public class PokemonRepository {
 
     private void sortPokemonList(List<PokemonDetail> pokemonList) {
         pokemonList.sort(Comparator.comparingInt(PokemonDetail::getId));
+    }
+
+    private void restartApp() {
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(context, R.string.pokemon_data_loaded, Toast.LENGTH_SHORT).show()
+        );
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
     }
 }

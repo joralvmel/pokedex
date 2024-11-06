@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary colors -->
+    <color name="colorPrimary">#81C784</color>
+    <color name="colorSecondary">#03A9F4</color>
+
+    <!-- Accent color -->
+    <color name="colorAccent">#FF8A65</color>
+
+    <!-- Background color -->
+    <color name="background_color">#121212</color>
+
+    <!-- Status Bar color -->
+    <color name="statusBarColor">#2A2A2A</color>
+
+    <!-- Text colors -->
+    <color name="primaryTextColor">#FFFFFF</color>
+    <color name="secondaryTextColor">#B0BEC5</color>
+
+    <!-- Error color -->
+    <color name="errorColor">#EF5350</color>
+
+    <!-- Divider/Border color -->
+    <color name="dividerColor">#424242</color>
+
+    <!-- Icon color -->
+    <color name="icon_color">#FFFFFF</color>
+</resources>

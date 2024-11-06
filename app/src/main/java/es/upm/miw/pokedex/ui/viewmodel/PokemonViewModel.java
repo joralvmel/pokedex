@@ -99,6 +99,10 @@ public class PokemonViewModel extends AndroidViewModel {
         );
     }
 
+    public LiveData<Boolean> getIsFetching() {
+        return repository.getIsFetching();
+    }
+
     private boolean matchesSearchText(PokemonDetail detail, String searchText) {
         return searchText == null || searchText.isEmpty() || detail.getName().toLowerCase().contains(searchText.toLowerCase());
     }
@@ -119,38 +123,38 @@ public class PokemonViewModel extends AndroidViewModel {
         int startId = 1, endId = 1025;
         if (generation != null) {
             switch (generation) {
-                case "Generation 1":
+                case "Gen 1":
                     endId = 151;
                     break;
-                case "Generation 2":
+                case "Gen 2":
                     startId = 152;
                     endId = 251;
                     break;
-                case "Generation 3":
+                case "Gen 3":
                     startId = 252;
                     endId = 386;
                     break;
-                case "Generation 4":
+                case "Gen 4":
                     startId = 387;
                     endId = 493;
                     break;
-                case "Generation 5":
+                case "Gen 5":
                     startId = 494;
                     endId = 649;
                     break;
-                case "Generation 6":
+                case "Gen 6":
                     startId = 650;
                     endId = 721;
                     break;
-                case "Generation 7":
+                case "Gen 7":
                     startId = 722;
                     endId = 809;
                     break;
-                case "Generation 8":
+                case "Gen 8":
                     startId = 810;
                     endId = 905;
                     break;
-                case "Generation 9":
+                case "Gen 9":
                     startId = 906;
                     break;
             }
@@ -195,5 +199,12 @@ public class PokemonViewModel extends AndroidViewModel {
             }
         }
         ((MutableLiveData<List<PokemonDetail>>) pokemonList).setValue(filteredList);
+    }
+
+    public void resetFilters() {
+        setCurrentSearchText("");
+        setCurrentType("All");
+        setCurrentGeneration("National");
+        setCurrentFavoriteSelection("All");
     }
 }

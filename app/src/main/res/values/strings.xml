@@ -1,4 +1,6 @@
 <resources>
+    <string name="default_web_client_id" translatable="false">149329179163-d4jjbii9feu4vqf9cqqc98ksgm5d8hja.apps.googleusercontent.com</string>
+
     <string name="app_name">Pokedex</string>
     <string name="label_emailpassword">Email/Password Authentication</string>
     <string name="hint_email">Email</string>
@@ -23,12 +25,21 @@
     <string name="email_verified">Email has been verified!</string>
     <string name="reload_successful">Reload successful</string>
     <string name="signed_in">Signed In</string>
-    <string name="login_with_email_password">Login with Email/Password</string>
+    <string name="login_with_email_password">Sign in with Email/Password</string>
     <string name="user_email">User Email</string>
     <string name="pokedex">Pokedex</string>
     <string name="load_list">Load Pokemon List</string>
     <string name="pokemon_image_description">Pokemon Sprite</string>
     <string name="favorite_icon">Favorite</string>
+    <string name="fetching_pokemon">Fetching all Pokémon…</string>
+    <string name="reset_filters">Filters have been reset</string>
+    <string name="current_user">email@example.com</string>
+    <string name="navigation_drawer_open">Navigation Drawer Open</string>
+    <string name="navigation_drawer_close">Navigation Drawer Close</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="pokemon_data_loaded">Pokémon data has been loaded</string>
+    <string name="google_sign_in_fail">Google sign-in failed</string>
+    <string name="app_logo">App Logo</string>
 
     <string-array name="pokemon_types">
         <item>All</item>
@@ -54,15 +65,15 @@
 
     <string-array name="pokemon_generations">
         <item>National</item>
-        <item>Generation 1</item>
-        <item>Generation 2</item>
-        <item>Generation 3</item>
-        <item>Generation 4</item>
-        <item>Generation 5</item>
-        <item>Generation 6</item>
-        <item>Generation 7</item>
-        <item>Generation 8</item>
-        <item>Generation 9</item>
+        <item>Gen 1</item>
+        <item>Gen 2</item>
+        <item>Gen 3</item>
+        <item>Gen 4</item>
+        <item>Gen 5</item>
+        <item>Gen 6</item>
+        <item>Gen 7</item>
+        <item>Gen 8</item>
+        <item>Gen 9</item>
     </string-array>
 
     <string-array name="favorite_filter_options">
