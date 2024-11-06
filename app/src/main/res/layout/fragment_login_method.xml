@@ -23,6 +23,14 @@
             android:maxWidth="320dp"
             android:textColor="@color/primaryTextColor"/>
 
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/googleSignInButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:buttonSize="wide"/>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
