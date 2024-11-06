@@ -10,12 +10,18 @@ An Android application that brings the world of Pokémon to your device! With us
 - **Dark Mode**: Toggle between light and dark themes to match your preferences.
 
 #### Screenshots
-![Login Screen](images/LoginMethods.jpeg)
-![Login Email](images/LoginEmail.jpeg)
-![Email Verification](images/LoginEmailVerification.jpeg)
-![Dark Mode](images/DarkMode.jpeg)
-![Filtered Pokemon List](images/FilterPokemon.jpeg)
-![Favorites](images/SaveFavorites.jpeg)
+<table>
+  <tr>
+    <td><img src="images/LoginMethods.jpeg" alt="Login Screen" width="200"/></td>
+    <td><img src="images/LoginEmail.jpeg" alt="Login Email" width="200"/></td>
+    <td><img src="images/LoginEmailVerification.jpeg" alt="Email Verification" width="200"/></td>
+  </tr>
+  <tr>
+    <td><img src="images/DarkMode.jpeg" alt="Dark Mode" width="200"/></td>
+    <td><img src="images/FilterPokemon.jpeg" alt="Filtered Pokemon List" width="200"/></td>
+    <td><img src="images/SaveFavorites.jpeg" alt="Favorites" width="200"/></td>
+  </tr>
+</table>
 
 #### Libraries Used
 
