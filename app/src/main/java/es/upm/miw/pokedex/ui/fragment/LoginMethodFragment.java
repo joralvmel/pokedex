@@ -97,7 +97,7 @@ public class LoginMethodFragment extends Fragment {
         if (user != null) {
             Toast.makeText(getContext(), R.string.reload_successful, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getContext(), R.string.not_authenticated, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, getString(R.string.not_authenticated));
         }
     }
 

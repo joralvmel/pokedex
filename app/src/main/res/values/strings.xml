@@ -39,6 +39,7 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="pokemon_data_loaded">Pokémon data has been loaded</string>
     <string name="google_sign_in_fail">Google sign-in failed</string>
+    <string name="app_logo">App Logo</string>
 
     <string-array name="pokemon_types">
         <item>All</item>
